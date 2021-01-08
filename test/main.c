@@ -29,7 +29,7 @@ static void* resolve_(const char* name, void* udata) {
 }
 
 int main(int argc, char** argv) {
-  assert(argc == 2);
+  assert(argc >= 2);
 
   bool resolved = true;
   irrun_t* ctx = irrun_new(&resolve_, &resolved, IRRUN_OPTIMIZE_LEVEL_AGGRESSIVE);
@@ -40,14 +40,14 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
-  int (*f)(void) = irrun_sym(ctx, "jitmain");
+  int (*f)(int, char**) = irrun_sym(ctx, "jitmain");
   if (f == NULL) {
     fprintf(stderr, "%s\n", irrun_get_error(ctx));
     return EXIT_FAILURE;
   }
   if (!resolved) return EXIT_FAILURE;
 
-  const int ret = f();
+  const int ret = f(argc, argv);
   irrun_delete(ctx);
   return ret;
 }
